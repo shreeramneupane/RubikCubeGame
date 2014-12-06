@@ -247,6 +247,21 @@ function Game(){
 			else that.backViewCount++;
 		}		
 	}
+	//function to check game win
+	this.winGame = function(){
+		var win = true;
+		var sideFirstCubeIndex=0;
+		for(var side = 1; side < 7; side++){
+			var cubeIndex=0;
+			var position = Math.floor((that.cubes[sideFirstCubeIndex]-1)/9); 
+			for(cubeIndex = sideFirstCubeIndex; cubeIndex < sideFirstCubeIndex +  9; cubeIndex++){
+				if(Math.floor((that.cubes[cubeIndex]-1)/9)!=position){win = false; break;}
+			}
+			if(win == false){console.log("still playing"); break;}
+			sideFirstCubeIndex = cubeIndex;
+		}
+		if(win == true){console.log("Win");}
+	}
 }
 var g = new Game();
 g.setCubesRandomValues();//toggle the cube to initiate stage
@@ -258,3 +273,4 @@ g.createView("right","back","ground");
 g.createView("back","left","ground");
 g.createView("left","front","ground");
 g.createView("front","right","ground");
+g.winGame();
