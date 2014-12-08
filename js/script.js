@@ -9,10 +9,14 @@ function Game(){
 	this.frontViewCount = 0;
 	this.backViewCount = 0;
 	this.viewsWrapperCount = 0;
+	this.leftRoterArray = [6,3,0,7,4,1,8,5,2];//one left rotation
+	this.rightRoterArray = [2,5,8,1,4,7,0,3,6];//one right rotation
+	this.rotationCount = 0; 
+	this.constantCubes;//a array that save initial array after suffeling the cubes
 	var that = this;
 	
 	this.setCubesRandomValues = function(){
-		this.cubes = [];
+		that.cubes = [];
 		while(that.cubes.length<54){
 			var create=true;
 			var random = Math.floor(Math.random()*54)+1;
@@ -23,6 +27,7 @@ function Game(){
 			if(create==true)
 				that.cubes.push(random);
 		}
+		that.constantCubes = that.cubes;
 	}
 	this.createViewWrapper = function(){
 		for(var i =0; i<8; i++){
@@ -43,6 +48,7 @@ function Game(){
 		that.createView("back","left","ground");
 		that.createView("left","front","ground");
 		that.createView("front","right","ground");
+		that.cubes = that.constantCubes;
 	}
 	//function to create view wrapper
 	this.createView = function(side1,side2,side3){
@@ -104,29 +110,22 @@ function Game(){
 		var rowCount = 1;
 		var changeRow = true;
 		if(viewSide == "topView" || viewSide == "groundView"){
+			///////////////////////rotation of top and ground view in initial and acive view state
+			if(that.topViewCount>0 && viewSide == "topView" && that.topViewCount!=4) that.rotateView("topView","left");//to rotate top view in every viewWrapper
+			else if(that.groundViewCount>0 && viewSide == "groundView" && that.groundViewCount!=4){that.rotateView("groundView","left"); console.log("abc");}//to rotate ground view in viewWrapper
+			if(that.rotationCount>0){//condition to know how many times to rotate top 0r ground view while selecting active view
+				for(var i=0; i<that.rotationCount;i++){
+					if(viewSide == "topView") that.rotateView("topView","left");
+					else if(viewSide == "groundView") that.rotateView("groundView","left");
+				}	
+			}
+			else if(that.topViewCount == 4 && that.groundViewCount ==4 && that.rotationCount==0){that.cubes=that.constantCubes;}
+			///////////////////////////////////////////////////////////////////////end
 			for(var i=0; i<9; i++){
 				var block = document.createElement("div");
-				if(rowCount == 1 && changeRow==true){//condition to rotate the top and ground view
-					if(relativeSide == "left"){top=58; left=0;}
-					else if(relativeSide == "front"){top=0; left=58;}
-					else if(relativeSide == "right"){top=58; left=116;}
-					else if(relativeSide == "back"){top=116; left=58;}
-					changeRow=false;
-				}
-				else if(rowCount == 2 && changeRow==true){
-					if(relativeSide == "left"){top=87;left=29;}
-					else if(relativeSide == "front"){top=29;left=29;}
-					else if(relativeSide == "right"){top=29;left=87;}
-					else if(relativeSide == "back"){top=87; left=87;}
-					changeRow=false;
-				}
-				else if(rowCount == 3 && changeRow==true){
-					if(relativeSide == "left"){top=116;left=58;}
-					else if(relativeSide == "front"){top=58; left=0;}
-					else if(relativeSide == "right"){top=0;left=58;}
-					else if(relativeSide == "back"){top=58; left=116;}
-					changeRow=false;
-				}
+				if(rowCount == 1 && changeRow==true){top=58; left=0; changeRow=false;}//condition to change offsetLeft & Right in every new row
+				else if(rowCount == 2 && changeRow==true){top=87; left=29; changeRow=false;}
+				else if(rowCount == 3 && changeRow==true){top=116; left=58; changeRow=false;}
 				block.style.height = "58px";
 				block.style.width = "58px";
 				block.className = viewSide.substr(0,viewSide.indexOf('V'));
@@ -147,10 +146,7 @@ function Game(){
 				else if(that.cubes[j]<46) image.setAttribute("src","image/white-top-ground.png");
 				else image.setAttribute("src","image/blue-top-ground.png");
 				block.appendChild(image);
-				if(relativeSide == "left"){top -= 29;left += 29;}//condition to change block positioning of top and ground view
-				else if(relativeSide == "front"){top += 29; left += 29;}
-				else if(relativeSide == "right"){top += 29; left -= 29;}
-				else if(relativeSide == "back"){top -= 29; left -= 29; }
+				top -= 29; left += 29;//condition to change block positioning of top and ground view
 				if((i+1)%3 == 0){rowCount++; changeRow=true;}
 			}
 			if(viewSide == "topView")that.topViewCount++;
@@ -214,6 +210,36 @@ function Game(){
 			else if(viewSide == "frontView")that.frontViewCount++;
 			else that.backViewCount++;
 		}
+	}
+	//function to rotate the view 
+	this.rotateView = function(view,directionToRotate){
+		var tempCubes = that.cubes;
+		var rotaterArray = [];
+		that.cubes = [];
+		if(directionToRotate == "left") rotaterArray = that.leftRoterArray;
+		else if(directionToRotate == "right") rotaterArray = that.rightRoterArray;
+		for(var i=0;i<54;i++){
+			switch(view){
+				case "topView": if(i<9) that.cubes.push(tempCubes[rotaterArray[i]]);
+							else that.cubes.push(tempCubes[i]);
+							break;
+				case "leftView": if(i>8 && i<18) that.cubes.push(tempCubes[rotaterArray[i-18]+18]);
+							else that.cubes.push(tempCubes[i]);
+							break;
+				case "frontView": if(i>17 && i<27) that.cubes.push(tempCubes[rotaterArray[i-18]+18]);
+							else that.cubes.push(tempCubes[i]);
+							break;
+				case "rightView": if(i>26 && i<36) that.cubes.push(tempCubes[rotaterArray[i-27]+27]);
+							else that.cubes.push(tempCubes[i]);
+							break;
+				case "backView": if(i>35 && i<45) that.cubes.push(tempCubes[rotaterArray[i-36]+36]);
+							else that.cubes.push(tempCubes[i]);
+							break;
+				case "groundView":if(i>44 && i<54) that.cubes.push(tempCubes[rotaterArray[i-45]+45]);
+							else that.cubes.push(tempCubes[i]);
+							break;
+			}
+		}
 	}	
 	//function to check game win
 	this.winGame = function(){
@@ -241,32 +267,40 @@ function Game(){
 			})(i);
 		}
 	}*/
-	var abc = false;
+	var activeViewSelected = false;//boolean to know wheather any View is selected
 	document.onkeydown = chooseViewForMovement;	
 	function chooseViewForMovement(e){
 		switch(e.keyCode){
 			case 49:that.createOpacityBackground();
+					that.rotationCount=0;
 					that.createView("top","left","front");	
 					break;
 			case 50:that.createOpacityBackground();
-					that.createView("top","front","right");
+					that.rotationCount=1;
+					that.createView("top","front","right");					
 					break;
 			case 51:that.createOpacityBackground();
-					that.createView("top","right","back");
+					that.rotationCount = 2;
+					that.createView("top","right","back");					
 					break;
 			case 52:that.createOpacityBackground();
+					that.rotationCount = 3;
 					that.createView("top","back","left");
 					break;
 			case 53:that.createOpacityBackground();
+					that.rotationCount=0;
 					that.createView("right","back","ground");
 					break;
 			case 54:that.createOpacityBackground();
+					that.rotationCount = 1;
 					that.createView("back","left","ground");
 					break;
 			case 55:that.createOpacityBackground();
+					that.rotationCount = 2;
 					that.createView("left","front","ground");
 					break;
 			case 56:that.createOpacityBackground();
+					that.rotationCount = 3;
 					that.createView("front","right","ground");
 					break;
 		}
@@ -283,7 +317,9 @@ function Game(){
 			that.rightViewCount = 4;
 			that.frontViewCount = 4;
 			that.backViewCount = 4;
-			abc = false;
+			that.cubes = that.constantCubes;
+			activeViewSelected = false;
+			activeSideSelected = false;
 		}
 		var opacityBackground = document.createElement("div");
 		opacityBackground.className = "opacityBackground";
@@ -297,14 +333,18 @@ function Game(){
 		function cancelMovement(e){
 			if(e.keyCode == 27)
 				try{(document.getElementsByClassName("wrapper")[0]).removeChild(opacityBackground);
-				that.viewsWrapperCount = 8;
-			that.topViewCount = 4;
-			that.groundViewCount = 4;
-			that.leftViewCount = 4;
-			that.rightViewCount = 4;
-			that.frontViewCount = 4;
-			that.backViewCount = 4;
-				abc = false;}
+					that.viewsWrapperCount = 8;
+					that.topViewCount = 4;
+					that.groundViewCount = 4;
+					that.leftViewCount = 4;
+					that.rightViewCount = 4;
+					that.frontViewCount = 4;
+					that.backViewCount = 4;
+					that.cubes = that.constantCubes;
+					that.rotationCount = 0;
+					activeViewSelected = false;
+					activeSideSelected = false;
+				}
 				catch(e){}
 		}
 		var activeView = document.createElement("div");
@@ -315,11 +355,13 @@ function Game(){
 		activeView.style.position = "relative";
 		activeView.style.top = "10px";
 		(document.getElementsByClassName("opacityBackground")[0]).appendChild(activeView);
-		abc = true;		
+		that.cubes = that.constantCubes;
+		activeViewSelected = true;
+		activeSideSelected = false;		
 	}
 	window.addEventListener("keydown", selectActiveSide, false);
 	function selectActiveSide(e){
-		if(abc == true)
+		if(activeViewSelected == true)
 		switch(e.keyCode){
 			case 70:that.showActiveSide("first");	
 					break;
@@ -329,9 +371,10 @@ function Game(){
 					break;
 		}
 	}
-	
+	var activeSideSelected = false;//boolean to know wheather side in a selected view is selected
 	this.showActiveSide = function(side){
-		var selectedActiveSide;
+		var selectedActiveSide;//contains one of the side in a view
+		var sideName;//contains className of the side contained in selectedActiveSide
 		if(side=="first"){
 			selectedActiveSide = (document.getElementsByClassName("viewsWrapper")[8]).children[0]
 		}
@@ -341,9 +384,45 @@ function Game(){
 		else if(side=="third"){
 			selectedActiveSide = (document.getElementsByClassName("viewsWrapper")[8]).children[2]
 		}
+		sideName = selectedActiveSide.attributes[0].value;
+		var checkActiveSide = document.getElementsByClassName("activeSide");
+		if(checkActiveSide.length>0){ activeSideSelected = false;
+			(document.getElementsByClassName("opacityBackground")[0]).removeChild(document.getElementsByClassName("activeSide")[0]);
+		}
 		var activeSide = document.createElement("div");
-	}
+		activeSide.className = "activeSide";
+		activeSide.style.height = "240px";
+		activeSide.style.width = "240px";
+		activeSide.style.position = "absolute";
+		activeSide.style.left = "381px";
+		activeSide.style.top = "360px";
+		(document.getElementsByClassName("opacityBackground")[0]).appendChild(activeSide);
 
+		for(var i=0; i<selectedActiveSide.children.length; i++){
+			var image = selectedActiveSide.children[i].children[0].attributes[0].value;
+			var color = image.substring(image.indexOf('/')+1,image.indexOf('-'));
+			var block = document.createElement("div");
+			block.style.height = "76px";
+			block.style.width = "76px";
+			block.style.border = "2px solid black";
+			block.style.float = "left";
+			block.style.backgroundColor = color;
+			block.style.position = "relative";
+			activeSide.appendChild(block);
+		}
+		activeSideSelected = true;
+	}
+	
+	window.addEventListener("keydown", selectMovementType, false);
+	function selectMovementType(e){
+		if(activeSideSelected == true)
+			switch(e.keyCode){
+				case 189:console.log("horizental");	
+						break;
+				case 220:console.log("vertical");	
+						break;				
+			}	
+	}
 }
 
 var game = new Game();
