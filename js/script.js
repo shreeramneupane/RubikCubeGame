@@ -1,3 +1,4 @@
+//Rubik Game JavaScript Document
 'use strict';
 function Game(){
 	this.cubes = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54];
@@ -7,6 +8,7 @@ function Game(){
 	this.rightViewCount = 0;
 	this.frontViewCount = 0;
 	this.backViewCount = 0;
+	this.viewsWrapperCount = 0;
 	var that = this;
 	
 	this.setCubesRandomValues = function(){
@@ -22,205 +24,170 @@ function Game(){
 				that.cubes.push(random);
 		}
 	}
-	
-	this.createView = function(side1,side2,side3){
-		var sketchSide;
-		var nextSide;
-		var viewsWrapper = document.createElement("div");
-		viewsWrapper.className = "viewsWrapper";
-		viewsWrapper.style.height = "297px";
-		viewsWrapper.style.width = "174px";
-		viewsWrapper.style.float = "left";
-		viewsWrapper.style.position = "relative";
-		viewsWrapper.style.marginRight = "20px";
-		viewsWrapper.style.marginBottom = "20px";
-		(document.getElementsByClassName("wrapper")[0]).appendChild(viewsWrapper);
-		var viewsWrapperCount = document.getElementsByClassName("viewsWrapper").length;
-		
-		if(side1=="top"){	
-			var topView = document.createElement("div");
-			topView.className = "topView";
-			topView.style.height = "174px";
-			topView.style.width = "174px";
-			topView.style.float = "left";
-			topView.style.position = "absolute";
-			topView.style.top = "0px";
-			(document.getElementsByClassName("viewsWrapper")[viewsWrapperCount-1]).appendChild(topView);
-			sketchSide = side2;			
-		}		
-		else{
-			sketchSide=side1;
+	this.createViewWrapper = function(){
+		for(var i =0; i<8; i++){
+			var viewsWrapper = document.createElement("div");
+			viewsWrapper.className = "viewsWrapper";
+			viewsWrapper.style.height = "297px";
+			viewsWrapper.style.width = "174px";
+			viewsWrapper.style.float = "left";
+			viewsWrapper.style.position = "relative";
+			viewsWrapper.style.margin = "20px 38px 20px 38px";
+			(document.getElementsByClassName("wrapper")[0]).appendChild(viewsWrapper);
 		}
-		
-		for(var i=0;i<2;i++){
-			var view =document.createElement("div");
-			view.style.height = "210px";
-			view.style.width = "87px";
-			view.style.float = "left";
-			view.style.position = "absolute";
-			if(side1=="top"){
-				view.style.top = "87px";
-			}
-			else{view.style.top = "0px";}
-			
-			if(sketchSide == "left"){
-				if(i == 0){view.style.left = "0px"; view.className = "leftView";}
-				else {view.style.left = "87px"; view.className = "frontView";}
-			}
-			else if(sketchSide == "front"){
-				if(i == 0){view.style.left = "0px"; view.className = "frontView";}
-				else {view.style.left = "87px"; view.className = "rightView";}
-			}
-			else if(sketchSide == "right"){
-				if(i == 0){view.style.left = "0px"; view.className = "rightView";}
-				else {view.style.left = "87px"; view.className = "backView";}
-			}
-			else{
-				if(i == 0){view.style.left = "0px"; view.className = "backView";}
-				else {view.style.left = "87px"; view.className = "leftView";}
-			}		
-			(document.getElementsByClassName("viewsWrapper")[viewsWrapperCount-1]).appendChild(view);
-		}
-		
-		if(side3=="ground"){
-			var groundView = document.createElement("div");
-			groundView.className = "groundView";
-			groundView.style.height = "174px";
-			groundView.style.width = "174px";
-			groundView.style.float = "left";
-			groundView.style.position = "absolute";
-			groundView.style.top = "123px";
-			(document.getElementsByClassName("viewsWrapper")[viewsWrapperCount-1]).appendChild(groundView);
-		}		
-		if(side1=="top"){
-			nextSide = side2;			
-			that.createCubesInView(side1,"top",nextSide);
-			that.createCubesInView(side2,"left",nextSide);
-			that.createCubesInView(side3,"right",nextSide);
-			
-		}
-		else{
-			if(side1=="right") nextSide="left";
-			else if(side1=="back") nextSide="back";
-			else if(side1=="left") nextSide="right";
-			else if(side1=="front") nextSide="front";
-			that.createCubesInView(side1,"right",nextSide);
-			that.createCubesInView(side2,"left",nextSide);
-			that.createCubesInView(side3,"ground",nextSide);
-		}
+		that.createView("top","left","front");
+		that.createView("top","front","right");
+		that.createView("top","right","back");
+		that.createView("top","back","left");
+		that.createView("right","back","ground");
+		that.createView("back","left","ground");
+		that.createView("left","front","ground");
+		that.createView("front","right","ground");
 	}
-	this.createTopGroundView = function(ViewSide){
+	//function to create view wrapper
+	this.createView = function(side1,side2,side3){
+		var viewsWrapperCount = that.viewsWrapperCount;
+		if(side1=="top"){	
+			that.createTopGroundView("topView",viewsWrapperCount,side2);//third parameter for block positioning
+			that.createLeftRightFrontBackView(side2+"View",viewsWrapperCount,side1,"first");//3 & 4 parameter for top & left displacement of view 
+			that.createLeftRightFrontBackView(side3+"View",viewsWrapperCount,side1,"second");			
+		}		
+		else{
+			var relativeView;
+			if(side1=="right")relativeView = "left";
+			else if(side1=="back")relativeView = "front";
+			else if(side1=="left")relativeView = "right";
+			else if(side1=="front")relativeView = "back";
+			that.createLeftRightFrontBackView(side1+"View",viewsWrapperCount,side3,"first");//3 & 4 parameter for top & left displacement of view
+			that.createLeftRightFrontBackView(side2+"View",viewsWrapperCount,side3,"second");
+			that.createTopGroundView("groundView",viewsWrapperCount,relativeView);//third parameter for block positioning
+		}
+		that.viewsWrapperCount++;		
+	}
+	//function to create top and ground view
+	this.createTopGroundView = function(viewSide,viewsWrapperCount,relativeSide){
 		var view = document.createElement("div");
-		view.className = ViewSide;
+		view.className = viewSide;
 		view.style.height = "174px";
 		view.style.width = "174px";
 		view.style.float = "left";
 		view.style.position = "absolute";
-		(document.getElementsByClassName("viewsWrapper")[viewsWrapperCount-1]).appendChild(ViewSide);
+		(document.getElementsByClassName("viewsWrapper")[that.viewsWrapperCount]).appendChild(view);
+		if(viewSide=="topView") view.style.top = "0px";	
+		else view.style.top = "123px";
+		that.createBlockInView(viewSide,null,relativeSide);
+	}	
+	//function to create left, right, front and back view
+	this.createLeftRightFrontBackView = function(viewSide,viewsWrapperCount,relativeView,viewHorizontalLocation){
+		var view =document.createElement("div");
+		view.className = viewSide;
+		view.style.height = "210px";
+		view.style.width = "87px";
+		view.style.float = "left";
+		view.style.position = "absolute";
+		if(relativeView == "top"){view.style.top = "87px";}
+		else{view.style.top = "0px";}
+		if(viewHorizontalLocation == "first")view.style.left = "0px";
+		else view.style.left = "87px";	
+		(document.getElementsByClassName("viewsWrapper")[this.viewsWrapperCount]).appendChild(view);
+		if(relativeView == "ground" && viewHorizontalLocation == "first")//condition for position left and right apperance changes in ground view 
+			viewHorizontalLocation = "second";
+		else if(relativeView == "ground" && viewHorizontalLocation == "second")
+			viewHorizontalLocation = "first";
+		that.createBlockInView(viewSide,viewHorizontalLocation,null);
 	}
-	this.createCubesInView = function(side,tempPosition,nextSide){
-		var j;
+	//function to create block in view
+	this.createBlockInView = function(viewSide,tempPosition,relativeSide){
+		var j;//j variable define index of View in that.cubes[] array
 		var left = 0;
 		var top = 0;
 		var rowCount = 1;
 		var changeRow = true;
-		if(side == "top" || side == "ground"){
+		if(viewSide == "topView" || viewSide == "groundView"){
 			for(var i=0; i<9; i++){
 				var block = document.createElement("div");
-				if(rowCount == 1 && changeRow==true){
-					if(nextSide == "left"){top=58; left=0;}
-					else if(nextSide == "front"){top=0; left=58;}
-					else if(nextSide == "right"){top=58; left=116;}
-					else if(nextSide == "back"){top=116; left=58;}
+				if(rowCount == 1 && changeRow==true){//condition to rotate the top and ground view
+					if(relativeSide == "left"){top=58; left=0;}
+					else if(relativeSide == "front"){top=0; left=58;}
+					else if(relativeSide == "right"){top=58; left=116;}
+					else if(relativeSide == "back"){top=116; left=58;}
 					changeRow=false;
 				}
 				else if(rowCount == 2 && changeRow==true){
-					if(nextSide == "left"){top=87;left=29;}
-					else if(nextSide == "front"){top=29;left=29;}
-					else if(nextSide == "right"){top=29;left=87;}
-					else if(nextSide == "back"){top=87; left=87;}
+					if(relativeSide == "left"){top=87;left=29;}
+					else if(relativeSide == "front"){top=29;left=29;}
+					else if(relativeSide == "right"){top=29;left=87;}
+					else if(relativeSide == "back"){top=87; left=87;}
 					changeRow=false;
 				}
 				else if(rowCount == 3 && changeRow==true){
-					if(nextSide == "left"){top=116;left=58;}
-					else if(nextSide == "front"){top=58; left=0;}
-					else if(nextSide == "right"){top=0;left=58;}
-					else if(nextSide == "back"){top=58; left=116;}
+					if(relativeSide == "left"){top=116;left=58;}
+					else if(relativeSide == "front"){top=58; left=0;}
+					else if(relativeSide == "right"){top=0;left=58;}
+					else if(relativeSide == "back"){top=58; left=116;}
 					changeRow=false;
 				}
 				block.style.height = "58px";
 				block.style.width = "58px";
-				block.className = side;
+				block.className = viewSide.substr(0,viewSide.indexOf('V'));
 				block.style.position = "absolute";								
 				block.style.top = top+"px";
 				block.style.left = left+"px";
-				block.style.textAlign = "center";
-				block.style.lineHeight = "58px";
-				if(side=="top"){
-					j=i;
-					block.innerHTML = that.cubes[j];
+				if(viewSide == "topView"){	j=i;
 					(document.getElementsByClassName("topView")[that.topViewCount]).appendChild(block);
 				}
-				else{
-					j=i+45;
-					block.innerHTML = that.cubes[j];
+				else{	j=i+45;					
 					(document.getElementsByClassName("groundView")[that.groundViewCount]).appendChild(block);
-				}					
-				if(that.cubes[j]<10)	block.style.background = "url(image/red-top-ground.png)";
-				else if(that.cubes[j]<19) block.style.background = "url(image/green-top-ground.png)";
-				else if(that.cubes[j]<28) block.style.background = "url(image/purple-top-ground.png)";
-				else if(that.cubes[j]<37) block.style.background = "url(image/yellow-top-ground.png)";
-				else if(that.cubes[j]<46) block.style.background = "url(image/white-top-ground.png)";
-				else block.style.background = "url(image/blue-top-ground.png)";
-				if(nextSide == "left"){top -= 29;left += 29;}
-				else if(nextSide == "front"){top += 29; left += 29;}
-				else if(nextSide == "right"){top += 29; left -= 29;}
-				else if(nextSide == "back"){top -= 29; left -= 29; }
+				}
+				var image = document.createElement("img");					
+				if(that.cubes[j]<10) image.setAttribute("src","image/red-top-ground.png");
+				else if(that.cubes[j]<19) image.setAttribute("src","image/green-top-ground.png"); 
+				else if(that.cubes[j]<28) image.setAttribute("src","image/purple-top-ground.png");
+				else if(that.cubes[j]<37) image.setAttribute("src","image/yellow-top-ground.png");
+				else if(that.cubes[j]<46) image.setAttribute("src","image/white-top-ground.png");
+				else image.setAttribute("src","image/blue-top-ground.png");
+				block.appendChild(image);
+				if(relativeSide == "left"){top -= 29;left += 29;}//condition to change block positioning of top and ground view
+				else if(relativeSide == "front"){top += 29; left += 29;}
+				else if(relativeSide == "right"){top += 29; left -= 29;}
+				else if(relativeSide == "back"){top -= 29; left -= 29; }
 				if((i+1)%3 == 0){rowCount++; changeRow=true;}
 			}
-			if(side == "top")that.topViewCount++;
+			if(viewSide == "topView")that.topViewCount++;
 			else that.groundViewCount++;
 		}
 		else{
-			if(tempPosition=="right")top=58;
+			if(tempPosition == "second")top=58;//view including top and ground's right and left respectively must have certain initial top offset
 			for(var i=0; i<9; i++){	
 				if((i+1)%3==0){rowCount++; changeRow=true;}			
 				var block = document.createElement("div");				
 				block.style.height = "70px";
 				block.style.width = "29px";
-				block.className = side;
+				block.className = viewSide.substr(0,viewSide.indexOf('V'));
 				block.style.position = "absolute";									
 				block.style.top = top+"px";
 				block.style.left = left+"px";
-				block.style.textAlign = "center";
-				block.style.lineHeight = "70px";
-				if(side=="left"){
-					block.innerHTML = that.cubes[i+9];
-					j= i+9;
+				if(viewSide=="leftView"){	j= i+9;
 					(document.getElementsByClassName("leftView")[that.leftViewCount]).appendChild(block);					
 				}					
-				else if(side=="front"){
-					block.innerHTML = that.cubes[i+18];
-					j=i+18;
+				else if(viewSide=="frontView"){ 	j=i+18;
 					(document.getElementsByClassName("frontView")[that.frontViewCount]).appendChild(block);
 				}
-				else if(side=="right"){
-					block.innerHTML = that.cubes[i+27];
-					j=i+27;
+				else if(viewSide=="rightView"){ 	j=i+27;
 					(document.getElementsByClassName("rightView")[that.rightViewCount]).appendChild(block);
 				}					
-				else{
-					block.innerHTML = that.cubes[i+36];
-					j=i+36;
+				else{	j=i+36;
 					(document.getElementsByClassName("backView")[that.backViewCount]).appendChild(block);
 				}
-				if(tempPosition=="left"){
-					if(that.cubes[j]<10) block.style.background = "url(image/red-left-right.png)";
-					else if(that.cubes[j]<19) block.style.background = "url(image/green-left-right.png)";
-					else if(that.cubes[j]<28) block.style.background = "url(image/purple-left-right.png)";
-					else if(that.cubes[j]<37) block.style.background = "url(image/yellow-left-right.png)";
-					else if(that.cubes[j]<46) block.style.background = "url(image/white-left-right.png)";
-					else block.style.background = "url(image/blue-left-right.png)";				
+				var image = document.createElement("img");
+				if(tempPosition == "first"){										
+					if(that.cubes[j]<10) image.setAttribute("src","image/red-left-right.png");
+					else if(that.cubes[j]<19) image.setAttribute("src","image/green-left-right.png"); 
+					else if(that.cubes[j]<28) image.setAttribute("src","image/purple-left-right.png");
+					else if(that.cubes[j]<37) image.setAttribute("src","image/yellow-left-right.png");
+					else if(that.cubes[j]<46) image.setAttribute("src","image/white-left-right.png");
+					else image.setAttribute("src","image/blue-left-right.png");
+					block.appendChild(image);				
 					top += 29;
 					left += 29;
 					if(rowCount==1 && changeRow==true){changeRow=false;}
@@ -228,12 +195,13 @@ function Game(){
 					else if(rowCount==3 && changeRow==true){top=82;left=0;changeRow=false;}					
 				}
 				else{
-					if(that.cubes[j]<10)	block.style.background = "url(image/red-front-back.png)";
-					else if(that.cubes[j]<19) block.style.background = "url(image/green-front-back.png)";
-					else if(that.cubes[j]<28) block.style.background = "url(image/purple-front-back.png)";
-					else if(that.cubes[j]<37) block.style.background = "url(image/yellow-front-back.png)";
-					else if(that.cubes[j]<46) block.style.background = "url(image/white-front-back.png)";
-					else block.style.background = "url(image/blue-front-back.png)";
+					if(that.cubes[j]<10) image.setAttribute("src","image/red-front-back.png");
+					else if(that.cubes[j]<19) image.setAttribute("src","image/green-front-back.png"); 
+					else if(that.cubes[j]<28) image.setAttribute("src","image/purple-front-back.png");
+					else if(that.cubes[j]<37) image.setAttribute("src","image/yellow-front-back.png");
+					else if(that.cubes[j]<46) image.setAttribute("src","image/white-front-back.png");
+					else image.setAttribute("src","image/blue-front-back.png");
+					block.appendChild(image);
 					top -= 29;
 					left += 29;
 					if(rowCount==1 && changeRow==true){changeRow=false;}
@@ -241,12 +209,12 @@ function Game(){
 					else if(rowCount==3 && changeRow==true){top=140;left=0;changeRow=false;}					
 				}					
 			}
-			if(side == "left")that.leftViewCount++;
-			else if(side == "right")that.rightViewCount++;
-			else if(side == "front")that.frontViewCount++;
+			if(viewSide == "leftView")that.leftViewCount++;
+			else if(viewSide == "rightView")that.rightViewCount++;
+			else if(viewSide == "frontView")that.frontViewCount++;
 			else that.backViewCount++;
-		}		
-	}
+		}
+	}	
 	//function to check game win
 	this.winGame = function(){
 		var win = true;
@@ -262,15 +230,124 @@ function Game(){
 		}
 		if(win == true){console.log("Win");}
 	}
+	/*this.clickEventHandler = function(){
+		var images = document.getElementsByTagName("img");
+		for(var i=0; i<images.length;i++){			
+			images[i].src.onclick = (function(pos){				
+				return function(){
+					console.log(images[pos]);
+					//console.log((images[pos].parentNode).parentNode);
+				}
+			})(i);
+		}
+	}*/
+	var abc = false;
+	document.onkeydown = chooseViewForMovement;	
+	function chooseViewForMovement(e){
+		switch(e.keyCode){
+			case 49:that.createOpacityBackground();
+					that.createView("top","left","front");	
+					break;
+			case 50:that.createOpacityBackground();
+					that.createView("top","front","right");
+					break;
+			case 51:that.createOpacityBackground();
+					that.createView("top","right","back");
+					break;
+			case 52:that.createOpacityBackground();
+					that.createView("top","back","left");
+					break;
+			case 53:that.createOpacityBackground();
+					that.createView("right","back","ground");
+					break;
+			case 54:that.createOpacityBackground();
+					that.createView("back","left","ground");
+					break;
+			case 55:that.createOpacityBackground();
+					that.createView("left","front","ground");
+					break;
+			case 56:that.createOpacityBackground();
+					that.createView("front","right","ground");
+					break;
+		}
+	}
+		
+	this.createOpacityBackground = function(){
+		var checkOpacityBackground = document.getElementsByClassName("opacityBackground");
+		if(checkOpacityBackground.length>0){
+			(document.getElementsByClassName("wrapper")[0]).removeChild(document.getElementsByClassName("opacityBackground")[0]);
+			that.viewsWrapperCount = 8;
+			that.topViewCount = 4;
+			that.groundViewCount = 4;
+			that.leftViewCount = 4;
+			that.rightViewCount = 4;
+			that.frontViewCount = 4;
+			that.backViewCount = 4;
+			abc = false;
+		}
+		var opacityBackground = document.createElement("div");
+		opacityBackground.className = "opacityBackground";
+		opacityBackground.style.height = "100%";
+		opacityBackground.style.width = "100%";
+		opacityBackground.style.backgroundColor = "rgba(1,1,1,0.8)";
+		opacityBackground.style.position = "relative";
+		(document.getElementsByClassName("wrapper")[0]).appendChild(opacityBackground);
+		
+		document.onkeyup = cancelMovement;		
+		function cancelMovement(e){
+			if(e.keyCode == 27)
+				try{(document.getElementsByClassName("wrapper")[0]).removeChild(opacityBackground);
+				that.viewsWrapperCount = 8;
+			that.topViewCount = 4;
+			that.groundViewCount = 4;
+			that.leftViewCount = 4;
+			that.rightViewCount = 4;
+			that.frontViewCount = 4;
+			that.backViewCount = 4;
+				abc = false;}
+				catch(e){}
+		}
+		var activeView = document.createElement("div");
+		activeView.className = "viewsWrapper";
+		activeView.style.height = "297px";
+		activeView.style.width = "174px";
+		activeView.style.margin = "0 auto";
+		activeView.style.position = "relative";
+		activeView.style.top = "10px";
+		(document.getElementsByClassName("opacityBackground")[0]).appendChild(activeView);
+		abc = true;		
+	}
+	window.addEventListener("keydown", selectActiveSide, false);
+	function selectActiveSide(e){
+		if(abc == true)
+		switch(e.keyCode){
+			case 70:that.showActiveSide("first");	
+					break;
+			case 68:that.showActiveSide("second");
+					break;
+			case 83:that.showActiveSide("third");
+					break;
+		}
+	}
+	
+	this.showActiveSide = function(side){
+		var selectedActiveSide;
+		if(side=="first"){
+			selectedActiveSide = (document.getElementsByClassName("viewsWrapper")[8]).children[0]
+		}
+		else if(side=="second"){
+			selectedActiveSide = (document.getElementsByClassName("viewsWrapper")[8]).children[1]
+		}
+		else if(side=="third"){
+			selectedActiveSide = (document.getElementsByClassName("viewsWrapper")[8]).children[2]
+		}
+		var activeSide = document.createElement("div");
+	}
+
 }
-var g = new Game();
-g.setCubesRandomValues();//toggle the cube to initiate stage
-g.createView("top","left","front");
-g.createView("top","front","right");
-g.createView("top","right","back");
-g.createView("top","back","left");
-g.createView("right","back","ground");
-g.createView("back","left","ground");
-g.createView("left","front","ground");
-g.createView("front","right","ground");
-g.winGame();
+
+var game = new Game();
+game.setCubesRandomValues();//toggle the cube to initiate stage
+game.createViewWrapper();
+game.winGame();
+//game.clickEventHandler();
