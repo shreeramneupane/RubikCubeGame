@@ -11,9 +11,15 @@ function Game() {
 	this.backSideCount = 0;
 	this.viewsWrapperCount = 0;
 	this.leftRoterArray = [2, 5, 8, 1, 4, 7, 0, 3, 6]; //one right rotation array of any side
-	this.verticalUpTopSideRoterArray = [0, 3, 6, 18, 21, 24, 51, 52, 53, 44, 41, 38]; //one vertical up rotation array for first column of top side 
-	this.horizentalLeftTopSideRoterArray = [0, 1, 2, 29, 32, 35, 47, 50, 53, 15, 12, 9]; //one horizontal left rotation array for first row of top side
-	this.horizentalLeftFrontSideRoterArray = [9, 10, 11, 18, 19, 20, 27, 28, 29, 36, 37, 38]; //one horizental left rotation array for first row of front 
+	this.verticalUpTopSideRoterFirstArray = [0, 3, 6, 18, 21, 24, 51, 52, 53, 44, 41, 38]; //one vertical up rotation array for first column of top, front, back side and horizental third row for ground side 
+	this.verticalUpTopSideRoterSecondArray = [1, 4, 7, 19, 22, 25, 48, 49, 50, 43, 40, 37];
+	this.verticalUpTopSideRoterThirdArray = [2, 5, 8, 20, 23, 26, 45, 46, 47, 42, 39, 36];
+	this.horizentalLeftTopSideRoterFirstArray = [0, 1, 2, 29, 32, 35, 47, 50, 53, 15, 12, 9]; //one horizontal left rotation array for first row of top side and vertical down for leftSide and vertical up for rightSide and vertical for third column of ground side
+	this.horizentalLeftTopSideRoterSecondArray = [3, 4, 5, 28, 31, 34, 46, 49, 52, 16, 13, 10];
+	this.horizentalLeftTopSideRoterThirdArray = [6, 7, 8, 27, 30, 33, 45, 48, 51, 17, 14, 11];
+	this.horizentalLeftFrontSideRoterFirstArray = [9, 10, 11, 18, 19, 20, 27, 28, 29, 36, 37, 38]; //one horizental left rotation array for first row of front, back, left and right side
+	this.horizentalLeftFrontSideRoterSecondArray = [12, 13, 14, 21, 22, 23, 30, 31, 32, 39, 40, 41];
+	this.horizentalLeftFrontSideRoterThirdArray = [15, 16, 17, 24, 25, 26, 33, 34, 35, 42, 43, 44];
 	this.rotationCount = 0;
 	this.constantCubes = []; //a array that save initial array after suffeling the cubes
 	var that = this;
@@ -33,9 +39,9 @@ function Game() {
 			}
 			if (create == true) {
 				that.cubes.push(random);
-				that.constantCubes.push(random);
 			}
 		}
+                that.constantCubes = that.cubes.slice(0);
 	}
 	//function to create view
 	this.createViews = function() {
@@ -133,9 +139,7 @@ function Game() {
 			}
 		} else if (that.topSideCount == 4 && that.groundSideCount == 4 && that.rotationCount == 0) {
 			that.cubes = [];
-			for (var i = 0; i < 54; i++) {
-				that.cubes[i] = that.constantCubes[i];
-			}
+			that.cubes = that.constantCubes.slice(0);
 		}
 		///////////////////////////////////////////////////////////////////////end
 		for (var i = 0; i < 9; i++) {
@@ -296,17 +300,7 @@ function Game() {
 			console.log("Win");
 		}
 	}
-	/*this.clickEventHandler = function(){
-		var images = document.getElementsByTagName("img");
-		for(var i=0; i<images.length;i++){			
-			images[i].src.onclick = (function(pos){				
-				return function(){
-					console.log(images[pos]);
-					//console.log((images[pos].parentNode).parentNode);
-				}
-			})(i);
-		}
-	}*/
+
 	var activeViewSelected = false; //boolean to know wheather any View is selected
 	var activeSideSelected = false; //boolean to know wheather side in a selected view is selected
 	var activeSideName; //contains className of the side contained in selectedActiveSide
@@ -315,9 +309,9 @@ function Game() {
 	var rowOrColumnNumberSelected = false; //boolean to know wheather row or column in active side is selected
 	var rowOrColumnNumber; //variable to know which row, column to move in active side
 
-	document.onkeydown = eventHandlerFunction;
+	document.onkeydown = keyboardEventHandler;
 
-	function eventHandlerFunction(e) {
+	function keyboardEventHandler(e) {
 		switch (e.keyCode) {
 			case 49:
 				for (var i = 0; i < 9; i++)
@@ -360,6 +354,10 @@ function Game() {
 				that.rotationCount = 3;
 				that.createSides("front", "right", "ground");
 				break;
+                        case 27:
+                                that.cancelEventHandle();
+                                break;
+		
 		}
 		if (activeViewSelected == true) {
 			switch (e.keyCode) {
@@ -419,16 +417,12 @@ function Game() {
 				}
 			}
 		}
-		if (e.keyCode == 27) {
-			that.cancelEventHandle();
-		}
-
 	}
 
 	this.cancelEventHandle = function() {
 		try {
 			that.variablesInitialization();
-			(document.getElementsByClassName("wrapper")[0]).removeChild(document.getElementsByClassName("opacityBackground")[0]);
+			(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("opacityBackground")[0]);
 		} catch (e) {}
 	}
 	//function to be initizatile the varibles for opacity background creation
@@ -441,9 +435,7 @@ function Game() {
 		that.frontSideCount = 4;
 		that.backSideCount = 4;
 		that.cubes = [];
-		for (var i = 0; i < 54; i++) {
-			that.cubes[i] = that.constantCubes[i];
-		}
+		that.cubes = that.constantCubes.slice(0); //as top and ground side are rotated when view other then 1 and 5 is choosen
 		that.rotationCount = 0;
 		activeViewSelected = false;
 		activeSideSelected = false;
@@ -453,33 +445,36 @@ function Game() {
 		rowOrColumnNumber = null;
 		rowOrColumnNumberSelected = false;
 	}
-
+	//function to create opacityBackground and viewsWrapper in the opacityBackground 
 	this.createOpacityBackground = function() {
 		var checkOpacityBackground = document.getElementsByClassName("opacityBackground");
 		if (checkOpacityBackground.length > 0) {
 			that.variablesInitialization();
-			(document.getElementsByClassName("wrapper")[0]).removeChild(document.getElementsByClassName("opacityBackground")[0]);
+			(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("opacityBackground")[0]);
 		}
 		var opacityBackground = document.createElement("div");
 		opacityBackground.className = "opacityBackground";
 		opacityBackground.style.height = "100%";
 		opacityBackground.style.width = "100%";
 		opacityBackground.style.backgroundColor = "rgba(1,1,1,0.8)";
-		opacityBackground.style.position = "relative";
-		(document.getElementsByClassName("wrapper")[0]).appendChild(opacityBackground);
+		opacityBackground.style.position = "absolute";
+		opacityBackground.style.top = "0px";
+		opacityBackground.style.left = "0px";
+		(document.getElementsByTagName("body")[0]).appendChild(opacityBackground);
 
 		var activeView = document.createElement("div");
 		activeView.className = "viewsWrapper";
 		activeView.style.height = "297px";
 		activeView.style.width = "174px";
 		activeView.style.position = "absolute";
-		activeView.style.left = "414px";
-		activeView.style.top = "10px";
+		activeView.style.margin = "auto";
+		activeView.style.top = "0px";
+		activeView.style.left = "0px";
+		activeView.style.buttom = "0px";
+		activeView.style.right = "0px";
 		(document.getElementsByClassName("opacityBackground")[0]).appendChild(activeView);
 		that.cubes = [];
-		for (var i = 0; i < 54; i++) {
-			that.cubes[i] = that.constantCubes[i];
-		}
+		that.cubes = that.constantCubes.slice(0); //as top and ground side are rotated when view other then 1 and 5 is choosen
 		activeViewSelected = true;
 	}
 
@@ -507,9 +502,11 @@ function Game() {
 		activeSide.style.height = "240px";
 		activeSide.style.width = "240px";
 		activeSide.style.position = "absolute";
-		activeSide.style.left = "381px";
-		activeSide.style.top = "360px";
-		activeSide.style.float = "left";
+		activeSide.style.margin = "auto";
+		activeSide.style.top = "320px";
+		activeSide.style.left = "0px";
+		activeSide.style.buttom = "0px";
+		activeSide.style.right = "0px";
 		(document.getElementsByClassName("opacityBackground")[0]).appendChild(activeSide);
 
 		for (var i = 0; i < selectedActiveSide.children.length; i++) {
@@ -521,7 +518,6 @@ function Game() {
 			block.style.border = "2px solid black";
 			block.style.float = "left";
 			block.style.backgroundColor = color;
-			block.style.position = "relative";
 			activeSide.appendChild(block);
 		}
 		activeSideName = selectedActiveSide.attributes[0].value;
@@ -570,14 +566,152 @@ function Game() {
 				directionToRotate: "right"
 			}]
 		}]
+	}, {
+		sideName: "leftSide",
+		movement: [{
+			type: "vertical",
+			kind: "1",
+			rowOrColumn: [{
+				number: "first",
+				sideToRotate: "backSide",
+				directionToRotate: "left"
+			}, {
+				number: "third",
+				sideToRotate: "frontSide",
+				directionToRotate: "right"
+			}]
+		}, {
+			type: "horizental",
+			kind: "3",
+			rowOrColumn: [{
+				number: "first",
+				sideToRotate: "topSide",
+				directionToRotate: "right"
+			}, {
+				number: "third",
+				sideToRotate: "groundSide",
+				directionToRotate: "left"
+			}]
+		}]
+	}, {
+		sideName: "frontSide",
+		movement: [{
+			type: "vertical",
+			kind: "2",
+			rowOrColumn: [{
+				number: "first",
+				sideToRotate: "leftSide",
+				directionToRotate: "left"
+			}, {
+				number: "third",
+				sideToRotate: "rightSide",
+				directionToRotate: "right"
+			}]
+		}, {
+			type: "horizental",
+			kind: "3",
+			rowOrColumn: [{
+				number: "first",
+				sideToRotate: "topSide",
+				directionToRotate: "right"
+			}, {
+				number: "third",
+				sideToRotate: "groundSide",
+				directionToRotate: "left"
+			}]
+		}]
+	}, {
+		sideName: "rightSide",
+		movement: [{
+			type: "vertical",
+			kind: "1",
+			rowOrColumn: [{
+				number: "first",
+				sideToRotate: "frontSide",
+				directionToRotate: "left"
+			}, {
+				number: "third",
+				sideToRotate: "backSide",
+				directionToRotate: "right"
+			}]
+		}, {
+			type: "horizental",
+			kind: "3",
+			rowOrColumn: [{
+				number: "first",
+				sideToRotate: "topSide",
+				directionToRotate: "right"
+			}, {
+				number: "third",
+				sideToRotate: "groundSide",
+				directionToRotate: "left"
+			}]
+		}]
+	}, {
+		sideName: "backSide",
+		movement: [{
+			type: "vertical",
+			kind: "2",
+			rowOrColumn: [{
+				number: "first",
+				sideToRotate: "rightSide",
+				directionToRotate: "left"
+			}, {
+				number: "third",
+				sideToRotate: "leftSide",
+				directionToRotate: "right"
+			}]
+		}, {
+			type: "horizental",
+			kind: "3",
+			rowOrColumn: [{
+				number: "first",
+				sideToRotate: "topSide",
+				directionToRotate: "right"
+			}, {
+				number: "third",
+				sideToRotate: "groundSide",
+				directionToRotate: "left"
+			}]
+		}]
+	}, {
+		sideName: "groundSide",
+		movement: [{
+			type: "vertical",
+			kind: "1",
+			rowOrColumn: [{
+				number: "first",
+				sideToRotate: "frontSide",
+				directionToRotate: "left"
+			}, {
+				number: "third",
+				sideToRotate: "backSide",
+				directionToRotate: "right"
+			}]
+		}, {
+			type: "horizental",
+			kind: "2",
+			rowOrColumn: [{
+				number: "first",
+				sideToRotate: "rightSide",
+				directionToRotate: "right"
+			}, {
+				number: "third",
+				sideToRotate: "leftSide",
+				directionToRotate: "left"
+			}]
+		}]
 	}];
 	this.performMovement = function(directionToRotate) {
 		var movementPerformed = false; //boolean to stop parsing Json when movement is performed
+                that.cubes = [];
+		that.cubes = that.constantCubes.slice(0); //as top and ground side are rotated when view other then 1 and 5 is choosen
 		for (var k = 0; k < moveSpec.length; k++) {
 			for (var i = 0; i < 2; i++) {
 				for (var j = 0; j < 2; j++) {
 					if (moveSpec[k].sideName == activeSideName && moveSpec[k].movement[i].type == movementType && moveSpec[k].movement[i].rowOrColumn[j].number == rowOrColumnNumber) {
-						if (directionToRotate == "left" || directionToRotate == "up") {
+						//the JSON array above is for left or up key is pressed so valid for those condition only and need change for down and right key presses condition
+                                                if (directionToRotate == "left" || directionToRotate == "up") {
 							that.rotateSide(moveSpec[k].movement[i].rowOrColumn[j].sideToRotate, moveSpec[k].movement[i].rowOrColumn[j].directionToRotate);
 							break;
 						} else if (directionToRotate == "right" || directionToRotate == "down") {
@@ -592,7 +726,7 @@ function Game() {
 					}
 				}
 				if (moveSpec[k].sideName == activeSideName && moveSpec[k].movement[i].type == movementType) {
-					console.log(moveSpec[k].movement[i].kind);
+					//console.log(moveSpec[k].movement[i].kind);
 					if (moveSpec[k].movement[i].kind == "2") {
 						that.verticalRotationForTopFrontBackAndHorizentalForGroundSide(directionToRotate);
 						movementPerformed = true;
@@ -613,10 +747,10 @@ function Game() {
 			}
 		}
 		that.constantCubes = [];
-		for (var i = 0; i < 54; i++) {
-			that.constantCubes[i] = that.cubes[i];
-		}
-		(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("wrapper")[0]);
+		that.constantCubes = that.cubes.slice(0); // now the cubes value are changed after movement that must be saved in constantCubes for further reference
+		(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("opacityBackground")[0]);
+		(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("wrapper")[0]);                
+                that.variablesInitialization();
 		var wrapper = document.createElement("div");
 		wrapper.className = "wrapper";
 		(document.getElementsByTagName("body")[0]).appendChild(wrapper);
@@ -627,19 +761,16 @@ function Game() {
 		that.frontSideCount = 0;
 		that.backSideCount = 0;
 		that.viewsWrapperCount = 0;
+                that.rotationCount = 0;
 		that.createViews();
+                that.winGame();
 	}
-
 	//function to rotate the side 
 	this.rotateSide = function(side, directionToRotate) {
 		var tempCubes = [];
 		var rotaterArray = [];
-		for (var j = 0; j < 54; j++) {
-			tempCubes[j] = that.cubes[j];
-		}
-		for (var j = 0; j < 9; j++) {
-			rotaterArray[j] = that.leftRoterArray[j];
-		}
+		tempCubes = that.cubes.slice(0);
+		rotaterArray = that.leftRoterArray.slice(0);
 		if (directionToRotate == "right" || directionToRotate == "down") {
 			rotaterArray.reverse();
 		}
@@ -668,18 +799,34 @@ function Game() {
 	}
 
 	this.verticalRotationForTopFrontBackAndHorizentalForGroundSide = function(directionToRotate) {
-		console.log(directionToRotate + "  " + activeSideName);
 		var tempCubes = [];
 		var rotaterArray = [];
-		for (var j = 0; j < 54; j++) {
-			tempCubes[j] = that.cubes[j];
+		tempCubes = that.cubes.slice(0);
+		if (rowOrColumnNumber == "first") {
+			if (activeSideName == "groundSide" || activeSideName == "backSide") {
+				rotaterArray = that.verticalUpTopSideRoterThirdArray.slice(0);
+			} else {
+				rotaterArray = that.verticalUpTopSideRoterFirstArray.slice(0);
+			}
+		} else if (rowOrColumnNumber == "second") {
+			rotaterArray = that.verticalUpTopSideRoterSecondArray.slice(0);
+		} else if (rowOrColumnNumber == "third") {
+			if (activeSideName == "groundSide" || activeSideName == "backSide") {
+				rotaterArray = that.verticalUpTopSideRoterFirstArray.slice(0);
+			} else {
+				rotaterArray = that.verticalUpTopSideRoterThirdArray.slice(0);
+			}
 		}
-		for (var j = 0; j < 12; j++) {
-			rotaterArray[j] = that.verticalUpTopSideRoterArray[j];
-		}
-		if (directionToRotate == "down") {
-			rotaterArray.reverse();
-		}
+                //as for backSide up need the reverse array and down need just array 
+		if(activeSideName != "backSide"){
+                        if (directionToRotate == "down" || directionToRotate == "right") {
+                                rotaterArray.reverse();
+                        }
+                }else{
+                        if (directionToRotate == "up" || directionToRotate == "left") {
+                                rotaterArray.reverse();
+                        }
+                }
 		for (var i = 0; i < 12; i++) {
 			if (i < 9) that.cubes[rotaterArray[i]] = tempCubes[rotaterArray[i + 3]];
 			else that.cubes[rotaterArray[i]] = tempCubes[rotaterArray[i - 9]];
@@ -687,17 +834,35 @@ function Game() {
 	}
 
 	this.horizontalRotationForTopAndVerticalForLeftRightGroundSide = function(directionToRotate) {
+		console.log(activeSideName + " " + movementType + " " + rowOrColumnNumber + " " + directionToRotate);
 		var tempCubes = [];
 		var rotaterArray = [];
-		for (var j = 0; j < 54; j++) {
-			tempCubes[j] = that.cubes[j];
+		tempCubes = that.cubes.slice(0);
+		if (rowOrColumnNumber == "first") {
+			if (activeSideName == "topSide" || activeSideName == "leftSide") {
+				rotaterArray = that.horizentalLeftTopSideRoterFirstArray.slice(0);
+			} else {console.log("bhayo");
+				rotaterArray = that.horizentalLeftTopSideRoterThirdArray.slice(0);
+			}
+		} else if (rowOrColumnNumber == "second") {
+			rotaterArray = that.horizentalLeftTopSideRoterSecondArray.slice(0);
+		} else if (rowOrColumnNumber == "third") {
+			if (activeSideName == "topSide" || activeSideName == "leftSide") {
+				rotaterArray = that.horizentalLeftTopSideRoterThirdArray.slice(0);
+			} else {
+				rotaterArray = that.horizentalLeftTopSideRoterFirstArray.slice(0);
+			}
 		}
-		for (var j = 0; j < 12; j++) {
-			rotaterArray[j] = that.horizentalLeftTopSideRoterArray[j];
-		}
-		if (directionToRotate == "down" || directionToRotate == "right") {
-			rotaterArray.reverse();
-		}
+                //as for leftSide up need the reverse array and down need just array 
+                if(activeSideName != "leftSide"){
+                        if (directionToRotate == "down" || directionToRotate == "right") {
+                                rotaterArray.reverse();
+                        }
+                }else{
+                        if (directionToRotate == "up" || directionToRotate == "left") {
+                                rotaterArray.reverse();
+                        }
+                }
 		for (var i = 0; i < 12; i++) {
 			if (i < 9) that.cubes[rotaterArray[i]] = tempCubes[rotaterArray[i + 3]];
 			else that.cubes[rotaterArray[i]] = tempCubes[rotaterArray[i - 9]];
@@ -707,11 +872,13 @@ function Game() {
 	this.horizontalRotationForLeftRightFrontBackSide = function(directionToRotate) {
 		var tempCubes = [];
 		var rotaterArray = [];
-		for (var j = 0; j < 54; j++) {
-			tempCubes[j] = that.cubes[j];
-		}
-		for (var j = 0; j < 12; j++) {
-			rotaterArray[j] = that.horizentalLeftFrontSideRoterArray[j];
+		tempCubes = that.cubes.slice(0);
+		if (rowOrColumnNumber == "first") {
+			rotaterArray = that.horizentalLeftFrontSideRoterFirstArray.slice(0);
+		} else if (rowOrColumnNumber == "second") {
+			rotaterArray = that.horizentalLeftFrontSideRoterSecondArray.slice(0);
+		} else if (rowOrColumnNumber == "third") {
+			rotaterArray = that.horizentalLeftFrontSideRoterThirdArray.slice(0);
 		}
 		if (directionToRotate == "right") {
 			rotaterArray.reverse();
@@ -727,4 +894,3 @@ var game = new Game();
 game.setCubesRandomValues(); //toggle the cube to initiate stage
 game.createViews();
 game.winGame();
-//game.clickEventHandler();
