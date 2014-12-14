@@ -3,7 +3,11 @@
 
 .wrapper{
 	height:614px;
-	width:900px;
+	width:860px;
 	margin:0 auto;
-	}
+        position:relative;
+}
+.initialDiv,.initialBlock,.viewsWrapper,.top,.left,.front,.right,.back,.ground,.activeSide,.tempBlock{
+        float: left;
+}
 	
