@@ -21,9 +21,12 @@ function Game() {
 	this.horizentalLeftFrontSideRoterSecondArray = [12, 13, 14, 21, 22, 23, 30, 31, 32, 39, 40, 41];
 	this.horizentalLeftFrontSideRoterThirdArray = [15, 16, 17, 24, 25, 26, 33, 34, 35, 42, 43, 44];
 	this.rotationCount = 0;
-	this.constantCubes = []; //a array that save initial array after suffeling the cubes
-	this.intervalId;
+	this.constantCubes = []; //a array that save initial array after suffeling the cube
 	this.cubeSuffled = false;
+	this.movementCount = 0;
+	this.timeCount;
+	var welcomeScreenIntervalId;
+	var timeCountIntervalId;
 	var that = this;
 
 	this.init = function() {
@@ -33,7 +36,7 @@ function Game() {
 		initialDiv.style.position = "relative";
 		initialDiv.innerHTML = "<audio autoplay> <source src='sounds/welcome.mp3' type='audio/mpeg'> </audio>";
 		(document.getElementsByClassName("wrapper")[0]).appendChild(initialDiv);
-		that.intervalId = setInterval(that.welcomeBannerCreation, 20);
+		welcomeScreenIntervalId = setInterval(that.welcomeBannerCreation, 20);
 	}
 	this.welcomeBannerCreation = function() {
 		var block = document.createElement("div");
@@ -51,7 +54,7 @@ function Game() {
 		else if ((random % 6) == 5) block.style.background = "yellow";
 		(document.getElementsByClassName("initialDiv")[0]).appendChild(block);
 		if ((document.getElementsByClassName("initialBlock").length) == 80) {
-			clearInterval(that.intervalId);
+			clearInterval(welcomeScreenIntervalId);
 			var imgPlay = document.createElement("img");
 			imgPlay.style.position = "absolute";
 			imgPlay.style.top = "200px";
@@ -70,7 +73,11 @@ function Game() {
 	}
 	this.startPlay = function(condition) {
 		if (condition == "win") {
+			console.log("You Completed Bruik Game in " + that.timeCount + " with " + that.movementCount + " movements");
+			that.movementCount = 0;
+			that.timeCount = null;
 			that.cubeSuffled = false;
+			(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("scoreDiv")[0]);
 			console.log("add effect of win here");
 		}
 		var imgSuffleCubes = document.createElement("img");
@@ -80,7 +87,11 @@ function Game() {
 		imgSuffleCubes.style.top = "285px";
 		imgSuffleCubes.style.left = "0px";
 		imgSuffleCubes.style.cursor = "pointer";
-		imgSuffleCubes.setAttribute("src", "image/suffle.png");
+		if (condition == "win") {
+			imgSuffleCubes.setAttribute("src", "image/replay-suffle.png");
+		} else {
+			imgSuffleCubes.setAttribute("src", "image/suffle.png");
+		}
 		(document.getElementsByClassName("wrapper")[0]).appendChild(imgSuffleCubes);
 
 		imgSuffleCubes.onclick = function() {
@@ -96,8 +107,78 @@ function Game() {
 			that.initialVariableInitialization();
 			that.createViews();
 			that.cubeSuffled = true;
+			that.intializeScoreBoard();
 		}
 	}
+	this.intializeScoreBoard = function() {
+		var scoreDiv = document.createElement("div");
+		scoreDiv.className = "scoreDiv";
+		scoreDiv.style.position = "absolute";
+		scoreDiv.style.height = "50px";
+		scoreDiv.style.width = "860px";
+		scoreDiv.style.margin = "auto";
+		scoreDiv.style.right = "0px";
+		scoreDiv.style.buttom = "0px";
+		scoreDiv.style.top = "0px";
+		scoreDiv.style.left = "0px";
+		(document.getElementsByTagName("body")[0]).appendChild(scoreDiv);
+
+		that.gameTimeElapsed();
+		that.gameMovementPerformed();
+	}
+
+	this.gameTimeElapsed = function() {
+		var timerDiv = document.createElement("div");
+		timerDiv.className = "timerDiv";
+		timerDiv.style.position = "absolute";
+		timerDiv.style.top = "2px";
+		timerDiv.style.left = "230px";
+		timerDiv.innerHTML = "Time Elapsed <label id='hours'>00</label>:<label id='minutes'>00</label>:<label id='seconds'>00</label>:<label id='smallSeconds'>00</label>";
+		(document.getElementsByClassName("scoreDiv")[0]).appendChild(timerDiv);
+
+		var hoursLabel = document.getElementById("hours");
+		var minutesLabel = document.getElementById("minutes");
+		var secondsLabel = document.getElementById("seconds");
+		var smallLabel = document.getElementById("smallSeconds");
+		var totalCount = 0;
+		var secondCount = 0;
+		var minuteCount = 0;
+		var hourCount = 0;
+		timeCountIntervalId = setInterval(setTime, 100);
+
+		function setTime() {
+			++totalCount;
+			secondCount = parseInt(totalCount / 10);
+			if (secondCount > 59) {
+				minuteCount++;
+				secondCount = 0;
+				totalCount = 0;
+			}
+			if (minuteCount > 59) {
+				hourCount++;
+				minuteCount = 0;
+			}
+			smallLabel.innerHTML = totalCount % 10;
+			secondsLabel.innerHTML = secondCount;
+			minutesLabel.innerHTML = minuteCount;
+			hoursLabel.innerHTML = hourCount;
+			that.timeCount = hourCount + ":" + minuteCount + ":" + secondCount + ":" + totalCount % 10;
+		}
+	}
+
+	this.gameMovementPerformed = function() {
+		if (document.getElementsByClassName("movementCountDiv").length > 0) {
+			(document.getElementsByClassName("scoreDiv")[0]).removeChild(document.getElementsByClassName("movementCountDiv")[0]);
+		}
+		var movementCountDiv = document.createElement("div");
+		movementCountDiv.className = "movementCountDiv";
+		movementCountDiv.style.position = "absolute";
+		movementCountDiv.style.top = "2px";
+		movementCountDiv.style.left = "450px";
+		movementCountDiv.innerHTML = "Movement Performed: " + that.movementCount;
+		(document.getElementsByClassName("scoreDiv")[0]).appendChild(movementCountDiv);
+	}
+
 	this.initialVariableInitialization = function() {
 		that.topSideCount = 0;
 		that.groundSideCount = 0;
@@ -140,7 +221,7 @@ function Game() {
 				that.cubes.push(random);
 			}
 		}
-		that.constantCubes = that.cubes.slice(0);
+                that.constantCubes = that.cubes.slice(0);
 	}
 	//function to create view
 	this.createViews = function() {
@@ -396,6 +477,7 @@ function Game() {
 			sideFirstCubeIndex = cubeIndex;
 		}
 		if (win == true) {
+			clearInterval(timeCountIntervalId);
 			(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("suffleDivSound")[0]);
 			that.cubes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54]
 			that.initialVariableInitialization();
@@ -632,7 +714,6 @@ function Game() {
 			var image = selectedActiveSide.children[i].children[0].attributes[0].value;
 			var color = image.substring(image.indexOf('/') + 1, image.indexOf('-'));
 			var block = document.createElement("div");
-                        block.className = "tempBlock";
 			block.style.height = "76px";
 			block.style.width = "76px";
 			block.style.border = "2px solid black";
@@ -826,11 +907,6 @@ function Game() {
 		var movementPerformed = false; //boolean to stop parsing Json when movement is performed
 		that.cubes = [];
 		that.cubes = that.constantCubes.slice(0); //as top and ground side are rotated when view other then 1 and 5 is choosen
-		var abc = "";
-		for (var a = 0; a < 54; a++) {
-			abc += " " + that.cubes[a];
-		}
-		console.log(abc);
 		if ((viewName == "view2" && activeSideName == "topSide") || (viewName == "view8" && activeSideName == "groundSide")) {
 			if (movementType == "vertical") that.toggleValueOf("rowOrColumnNumber");
 			else if (movementType == "horizental") that.toggleValueOf("directionToRotate");
@@ -890,6 +966,8 @@ function Game() {
 				break;
 			}
 		}
+		that.movementCount++;
+		that.gameMovementPerformed();
 		that.constantCubes = [];
 		that.constantCubes = that.cubes.slice(0); // now the cubes value are changed after movement that must be saved in constantCubes for further reference
 		(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("opacityBackground")[0]);
