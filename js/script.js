@@ -221,7 +221,7 @@ function Game() {
 				that.cubes.push(random);
 			}
 		}
-                that.constantCubes = that.cubes.slice(0);
+		that.constantCubes = that.cubes.slice(0);
 	}
 	//function to create view
 	this.createViews = function() {
@@ -501,51 +501,42 @@ function Game() {
 		if (that.cubeSuffled == true) {
 			switch (e.keyCode) {
 				case 49:
-					viewName = "view1";
-					for (var i = 0; i < 9; i++)
-					that.createOpacityBackground();
+					that.createOpacityBackground("view1");
 					that.rotationCount = 0;
 					that.createSides("top", "left", "front");
 					break;
 				case 50:
-					viewName = "view2";
-					that.createOpacityBackground();
+					that.createOpacityBackground("view2");
 					that.rotationCount = 1;
 					that.createSides("top", "front", "right");
 					break;
 				case 51:
-					viewName = "view3";
-					that.createOpacityBackground();
+					that.createOpacityBackground("view3");
 					that.rotationCount = 2;
 					that.createSides("top", "right", "back");
 					break;
 				case 52:
-					viewName = "view4";
-					that.createOpacityBackground();
+					that.createOpacityBackground("view4");
 					that.rotationCount = 3;
 					that.createSides("top", "back", "left");
 					break;
 				case 53:
-					viewName = "view5";
-					that.createOpacityBackground();
+					that.createOpacityBackground("view5");
 					that.rotationCount = 0;
 					that.createSides("right", "back", "ground");
 					break;
 				case 54:
-					viewName = "view6";
-					that.createOpacityBackground();
+					that.createOpacityBackground("view6");
 					that.rotationCount = 1;
 					that.createSides("back", "left", "ground");
 					break;
 				case 55:
-					viewName = "view7";
-					that.createOpacityBackground();
+					that.createOpacityBackground("view7");
 					that.rotationCount = 2;
 					that.createSides("left", "front", "ground");
 					break;
 				case 56:
-					viewName = "view8";
-					that.createOpacityBackground();
+					that.createOpacityBackground("view8");
 					that.rotationCount = 3;
 					that.createSides("front", "right", "ground");
 					break;
@@ -647,12 +638,13 @@ function Game() {
 		rowOrColumnNumberSelected = false;
 	}
 	//function to create opacityBackground and viewsWrapper in the opacityBackground 
-	this.createOpacityBackground = function() {
+	this.createOpacityBackground = function(view) {
 		var checkOpacityBackground = document.getElementsByClassName("opacityBackground");
 		if (checkOpacityBackground.length > 0) {
 			that.movesVariablesInitialization();
 			(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("opacityBackground")[0]);
 		}
+		viewName = view;
 		var opacityBackground = document.createElement("div");
 		opacityBackground.className = "opacityBackground";
 		opacityBackground.style.height = "100%";
@@ -663,22 +655,100 @@ function Game() {
 		opacityBackground.style.left = "0px";
 		(document.getElementsByTagName("body")[0]).appendChild(opacityBackground);
 
+		var infoDiv = document.createElement("div");
+		infoDiv.className = "opacityBackground";
+		infoDiv.style.height = "30px";
+		infoDiv.style.lineHeight = "30px";
+		infoDiv.style.backgroundColor = "rgba(100,255,100,0.5)";
+		infoDiv.style.position = "absolute";
+		infoDiv.style.top = "0px";
+		infoDiv.style.left = "0px";
+		infoDiv.style.fontSize = "24px";
+		infoDiv.style.padding = "5px"
+		infoDiv.style.borderRadius = "10px"
+		infoDiv.innerHTML = "Press the Key Focuse to make new selection or for change";
+		(document.getElementsByClassName("opacityBackground")[0]).appendChild(infoDiv);
+
+		var activeViewWrapper = document.createElement("div");
+		activeViewWrapper.className = "activeViewWrapper";
+		activeViewWrapper.style.height = "100%";
+		activeViewWrapper.style.width = "350px";
+		activeViewWrapper.style.position = "absolute";
+		activeViewWrapper.style.margin = "auto";
+		activeViewWrapper.style.top = "0px";
+		activeViewWrapper.style.left = "0px";
+		activeViewWrapper.style.buttom = "0px";
+		activeViewWrapper.style.right = "0px";
+		(document.getElementsByClassName("opacityBackground")[0]).appendChild(activeViewWrapper);
+		that.cubes = [];
+		that.cubes = that.constantCubes.slice(0); //as top and ground side are rotated when view other then 1 and 5 is choosen
+		activeViewSelected = true;
+
+		that.showActiveView();
+	}
+	this.showActiveView = function() {
 		var activeView = document.createElement("div");
 		activeView.className = "viewsWrapper";
 		activeView.style.height = "297px";
 		activeView.style.width = "174px";
 		activeView.style.position = "absolute";
 		activeView.style.margin = "auto";
-		activeView.style.top = "0px";
+		activeView.style.top = "5px";
 		activeView.style.left = "0px";
 		activeView.style.buttom = "0px";
 		activeView.style.right = "0px";
-		(document.getElementsByClassName("opacityBackground")[0]).appendChild(activeView);
+		(document.getElementsByClassName("activeViewWrapper")[0]).appendChild(activeView);
 		that.cubes = [];
 		that.cubes = that.constantCubes.slice(0); //as top and ground side are rotated when view other then 1 and 5 is choosen
 		activeViewSelected = true;
-	}
 
+		that.showKeyToSelectActiveSide();
+	}
+	this.showKeyToSelectActiveSide = function() {
+		for (var i = 0; i < 3; i++) {
+			var keyToSelectActiveSide = document.createElement("div");
+			keyToSelectActiveSide.className = "keyToSelectActiveSide";
+			keyToSelectActiveSide.style.height = "50px";
+			keyToSelectActiveSide.style.width = "50px";
+			keyToSelectActiveSide.style.borderRadius = "25px";
+			keyToSelectActiveSide.style.position = "absolute";
+			keyToSelectActiveSide.style.backgroundColor = "rgba(200,200,200,0.4)";
+			keyToSelectActiveSide.style.textAlign = "center";
+			keyToSelectActiveSide.style.lineHeight = "50px";
+			if (i == 0) {
+				keyToSelectActiveSide.innerHTML = "f";
+				if (viewName == "view1" || viewName == "view2" || viewName == "view3" || viewName == "view4") {
+					keyToSelectActiveSide.style.margin = "auto";
+					keyToSelectActiveSide.style.top = "0px";
+					keyToSelectActiveSide.style.left = "0px";
+					keyToSelectActiveSide.style.right = "0px";
+				} else {
+					keyToSelectActiveSide.style.top = "120px";
+					keyToSelectActiveSide.style.left = "70px";
+				}
+			} else if (i == 1) {
+				keyToSelectActiveSide.innerHTML = "d";
+				if ((viewName == "view1" || viewName == "view2" || viewName == "view3" || viewName == "view4")) {
+					keyToSelectActiveSide.style.left = "70px";
+				} else {
+					keyToSelectActiveSide.style.right = "70px";
+				}
+				keyToSelectActiveSide.style.top = "120px";
+			} else if (i == 2) {
+				keyToSelectActiveSide.innerHTML = "s";
+				if ((viewName == "view1" || viewName == "view2" || viewName == "view3" || viewName == "view4")) {
+					keyToSelectActiveSide.style.top = "120px";
+					keyToSelectActiveSide.style.right = "70px";
+				} else {
+					keyToSelectActiveSide.style.margin = "auto";
+					keyToSelectActiveSide.style.top = "260px";
+					keyToSelectActiveSide.style.left = "0px";
+					keyToSelectActiveSide.style.right = "0px";
+				}
+			}
+			(document.getElementsByClassName("activeViewWrapper")[0]).appendChild(keyToSelectActiveSide);
+		}
+	}
 	this.showActiveSide = function(position) {
 		var selectedActiveSide; //contains one of the side in a view
 		if (position == "first") {
@@ -704,7 +774,7 @@ function Game() {
 		activeSide.style.width = "240px";
 		activeSide.style.position = "absolute";
 		activeSide.style.margin = "auto";
-		activeSide.style.top = "320px";
+		activeSide.style.top = "355px";
 		activeSide.style.left = "0px";
 		activeSide.style.buttom = "0px";
 		activeSide.style.right = "0px";
@@ -724,20 +794,149 @@ function Game() {
 		activeSideName = selectedActiveSide.attributes[0].value;
 		console.log(activeSideName);
 		activeSideSelected = true;
+		that.showKeyToSelectmovementType();
 	}
-
+	this.showKeyToSelectmovementType = function() {
+		if (document.getElementsByClassName("keyToSelectRowOrColumnToRotate").length > 0) {
+			for (var i = 0; i < 3; i++) {
+				(document.getElementsByClassName("activeViewWrapper")[0]).removeChild(document.getElementsByClassName("keyToSelectRowOrColumnToRotate")[0]);
+			}
+		}
+		if (document.getElementsByClassName("keyToSelectDirectionToRotate").length > 0) {
+			for (var i = 0; i < 2; i++) {
+				(document.getElementsByClassName("activeViewWrapper")[0]).removeChild(document.getElementsByClassName("keyToSelectDirectionToRotate")[0]);
+			}
+		}
+		for (var i = 0; i < 2; i++) {
+			var keyToSelectmovementType = document.createElement("div");
+			keyToSelectmovementType.style.height = "50px";
+			keyToSelectmovementType.style.width = "50px";
+			keyToSelectmovementType.style.borderRadius = "25px";
+			keyToSelectmovementType.style.position = "absolute";
+			keyToSelectmovementType.style.backgroundColor = "rgba(150,150,150,0.3)";
+			keyToSelectmovementType.style.textAlign = "center";
+			keyToSelectmovementType.style.lineHeight = "50px";
+			if (i == 0) {
+				keyToSelectmovementType.className = "horizentalKeyToSelectmovementType";
+				keyToSelectmovementType.innerHTML = "-";
+				keyToSelectmovementType.style.top = "590px";
+				keyToSelectmovementType.style.margin = "auto";
+				keyToSelectmovementType.style.left = "0px";
+				keyToSelectmovementType.style.right = "0px";
+			} else {
+				keyToSelectmovementType.className = "verticalKeyToSelectmovementType";
+				keyToSelectmovementType.innerHTML = "|";
+				keyToSelectmovementType.style.top = "450px";
+				keyToSelectmovementType.style.right = "15px";
+			}
+			(document.getElementsByClassName("activeViewWrapper")[0]).appendChild(keyToSelectmovementType);
+		}
+	}
 	this.focusMovementType = function(movement) {
 		rowOrColumnNumberSelected = false;
 		movementType = movement;
 		rowOrColumnNumber = null;
 		movementTypeSelected = true;
 		console.log(movementType);
+		that.showKeyToSelectRowOrColumnToRotate();
 	}
-
+	this.showKeyToSelectRowOrColumnToRotate = function() {
+		if (document.getElementsByClassName("keyToSelectRowOrColumnToRotate").length > 0) {
+			for (var i = 0; i < 3; i++) {
+				(document.getElementsByClassName("activeViewWrapper")[0]).removeChild(document.getElementsByClassName("keyToSelectRowOrColumnToRotate")[0]);
+			}
+		}
+		if (document.getElementsByClassName("keyToSelectDirectionToRotate").length > 0) {
+			for (var i = 0; i < 2; i++) {
+				(document.getElementsByClassName("activeViewWrapper")[0]).removeChild(document.getElementsByClassName("keyToSelectDirectionToRotate")[0]);
+			}
+		}
+		for (var i = 0; i < 3; i++) {
+			var keyToSelectRowOrColumnToRotate = document.createElement("div");
+			keyToSelectRowOrColumnToRotate.className = "keyToSelectRowOrColumnToRotate";
+			keyToSelectRowOrColumnToRotate.style.height = "50px";
+			keyToSelectRowOrColumnToRotate.style.width = "50px";
+			keyToSelectRowOrColumnToRotate.style.borderRadius = "25px";
+			keyToSelectRowOrColumnToRotate.style.position = "absolute";
+			keyToSelectRowOrColumnToRotate.style.backgroundColor = "rgba(120,120,120,0.6)";
+			keyToSelectRowOrColumnToRotate.style.textAlign = "center";
+			keyToSelectRowOrColumnToRotate.style.lineHeight = "50px";
+			if (movementType == "vertical") {
+				if (i == 0) {
+					keyToSelectRowOrColumnToRotate.innerHTML = "t";
+					keyToSelectRowOrColumnToRotate.style.left = "70px";
+				} else if (i == 1) {
+					keyToSelectRowOrColumnToRotate.innerHTML = "r";
+					keyToSelectRowOrColumnToRotate.style.left = "150px";
+				} else if (i == 2) {
+					keyToSelectRowOrColumnToRotate.innerHTML = "e";
+					keyToSelectRowOrColumnToRotate.style.left = "230px";
+				}
+				keyToSelectRowOrColumnToRotate.style.top = "320px";
+			} else if (movementType == "horizental") {
+				if (i == 0) {
+					keyToSelectRowOrColumnToRotate.innerHTML = "t";
+					keyToSelectRowOrColumnToRotate.style.top = "370px";
+				} else if (i == 1) {
+					keyToSelectRowOrColumnToRotate.innerHTML = "r";
+					keyToSelectRowOrColumnToRotate.style.top = "450px";
+				} else if (i == 2) {
+					keyToSelectRowOrColumnToRotate.innerHTML = "e";
+					keyToSelectRowOrColumnToRotate.style.top = "530px";
+				}
+				keyToSelectRowOrColumnToRotate.style.left = "15px";
+			}
+			(document.getElementsByClassName("activeViewWrapper")[0]).appendChild(keyToSelectRowOrColumnToRotate);
+		}
+	}
 	this.focusSelectedRowOrColumnToRotate = function(selectedNumber) {
 		rowOrColumnNumber = selectedNumber;
 		rowOrColumnNumberSelected = true;
 		console.log(rowOrColumnNumber);
+		that.showKeyToSelectDirectionToRotate();
+	}
+	this.showKeyToSelectDirectionToRotate = function() {
+		if (document.getElementsByClassName("keyToSelectDirectionToRotate").length > 0) {
+			for (var i = 0; i < 2; i++) {
+				(document.getElementsByClassName("activeViewWrapper")[0]).removeChild(document.getElementsByClassName("keyToSelectDirectionToRotate")[0]);
+			}
+		}
+		for (var i = 0; i < 2; i++) {
+			var keyToSelectDirectionToRotate = document.createElement("div");
+			keyToSelectDirectionToRotate.className = "keyToSelectDirectionToRotate";
+			keyToSelectDirectionToRotate.style.height = "50px";
+			keyToSelectDirectionToRotate.style.width = "50px";
+			keyToSelectDirectionToRotate.style.borderRadius = "25px";
+			keyToSelectDirectionToRotate.style.position = "absolute";
+			keyToSelectDirectionToRotate.style.textAlign = "center";
+			keyToSelectDirectionToRotate.style.lineHeight = "50px";
+			if (movementType == "vertical") {
+				if (rowOrColumnNumber == "first") keyToSelectDirectionToRotate.style.left = "70px";
+				else if (rowOrColumnNumber == "second") keyToSelectDirectionToRotate.style.left = "150px";
+				else if (rowOrColumnNumber == "third") keyToSelectDirectionToRotate.style.left = "230px";
+				if (i == 0) {
+					keyToSelectDirectionToRotate.style.background = "url(image/up-arrow.png) no-repeat";
+					keyToSelectDirectionToRotate.style.top = "320px";
+				} else if (i == 1) {
+					keyToSelectDirectionToRotate.style.background = "url(image/down-arrow.png) no-repeat";
+					keyToSelectDirectionToRotate.style.top = "590px";
+				}
+
+			} else if (movementType == "horizental") {
+				if (rowOrColumnNumber == "first") keyToSelectDirectionToRotate.style.top = "370px";
+				else if (rowOrColumnNumber == "second") keyToSelectDirectionToRotate.style.top = "450px";
+				else if (rowOrColumnNumber == "third") keyToSelectDirectionToRotate.style.top = "530px";
+				if (i == 0) {
+					keyToSelectDirectionToRotate.style.background = "url(image/left-arrow.png) no-repeat";
+					keyToSelectDirectionToRotate.style.left = "15px";
+				} else if (i == 1) {
+					keyToSelectDirectionToRotate.style.background = "url(image/right-arrow.png) no-repeat";
+					keyToSelectDirectionToRotate.style.right = "15px";
+				}
+			}
+			keyToSelectDirectionToRotate.style.backgroundColor = "rgba(120,120,120,0.8)";
+			(document.getElementsByClassName("activeViewWrapper")[0]).appendChild(keyToSelectDirectionToRotate);
+		}
 	}
 	//json array to parse the various condition of movement
 	var moveSpec = [{
@@ -907,6 +1106,11 @@ function Game() {
 		var movementPerformed = false; //boolean to stop parsing Json when movement is performed
 		that.cubes = [];
 		that.cubes = that.constantCubes.slice(0); //as top and ground side are rotated when view other then 1 and 5 is choosen
+		var abc = "";
+		for (var a = 0; a < 54; a++) {
+			abc += " " + that.cubes[a];
+		}
+		console.log(abc);
 		if ((viewName == "view2" && activeSideName == "topSide") || (viewName == "view8" && activeSideName == "groundSide")) {
 			if (movementType == "vertical") that.toggleValueOf("rowOrColumnNumber");
 			else if (movementType == "horizental") that.toggleValueOf("directionToRotate");
