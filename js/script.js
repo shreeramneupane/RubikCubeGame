@@ -24,7 +24,7 @@ function Game() {
 	this.constantCubes = []; //a array that save initial array after suffeling the cube
 	this.cubeSuffled = false;
 	this.movementCount = 0;
-	this.timeCount;
+	this.timeCount = null;
 	var welcomeScreenIntervalId;
 	var timeCountIntervalId;
 	var that = this;
@@ -73,12 +73,9 @@ function Game() {
 	}
 	this.startPlay = function(condition) {
 		if (condition == "win") {
-			console.log("You Completed Bruik Game in " + that.timeCount + " with " + that.movementCount + " movements");
 			that.movementCount = 0;
 			that.timeCount = null;
-			that.cubeSuffled = false;
 			(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("scoreDiv")[0]);
-			console.log("add effect of win here");
 		}
 		var imgSuffleCubes = document.createElement("img");
 		imgSuffleCubes.style.height = "100px";
@@ -95,6 +92,9 @@ function Game() {
 		(document.getElementsByClassName("wrapper")[0]).appendChild(imgSuffleCubes);
 
 		imgSuffleCubes.onclick = function() {
+			if (condition == "win") {
+				(document.getElementsByClassName("wrapper")[0]).removeChild(document.getElementById("scoreResult"));
+			}
 			var suffleDivSound = document.createElement("div");
 			suffleDivSound.className = "suffleDivSound";
 			suffleDivSound.innerHTML = "<audio autoplay> <source src='sounds/suffle.mp3' type='audio/mpeg'> </audio>";
@@ -105,8 +105,8 @@ function Game() {
 			(document.getElementsByTagName("body")[0]).appendChild(wrapper);
 			that.setCubesRandomValues();
 			that.initialVariableInitialization();
-			that.createViews();
-			that.cubeSuffled = true;
+                        that.cubeSuffled = true;
+			that.createViews();			
 			that.intializeScoreBoard();
 		}
 	}
@@ -122,7 +122,6 @@ function Game() {
 		scoreDiv.style.top = "0px";
 		scoreDiv.style.left = "0px";
 		(document.getElementsByTagName("body")[0]).appendChild(scoreDiv);
-
 		that.gameTimeElapsed();
 		that.gameMovementPerformed();
 	}
@@ -178,7 +177,28 @@ function Game() {
 		movementCountDiv.innerHTML = "Movement Performed: " + that.movementCount;
 		(document.getElementsByClassName("scoreDiv")[0]).appendChild(movementCountDiv);
 	}
-
+        this.createInfo = function(stage){
+                var infoDiv = document.createElement("div");
+                infoDiv.className = "infoDiv";
+                infoDiv.style.lineHeight = "20px";
+                infoDiv.style.backgroundColor = "rgba(100,255,100,0.3)";
+                infoDiv.style.position = "absolute";                
+                infoDiv.style.left = "0px";
+                infoDiv.style.fontSize = "16px";
+                infoDiv.style.padding = "5px";
+                infoDiv.style.borderRadius = "10px";            
+                if(stage == "showingViews"){                    
+                    infoDiv.style.height = "20px";
+                    infoDiv.innerHTML = "Press the Key Focuse near views to select that view to make change.";
+                    infoDiv.style.top = "630px";
+                    (document.getElementsByClassName("wrapper")[0]).appendChild(infoDiv);
+                } else if(stage == "viewSelected"){                    
+                    infoDiv.style.height = "60px";
+                    infoDiv.innerHTML = "Press the Key Focuse to make to make selection or to change. <br />OR Press other numeric key to change view selection. <br/>OR Press 'Esc' to go to main screen.";
+                    infoDiv.style.top = "0px";
+                    (document.getElementsByClassName("opacityBackground")[0]).appendChild(infoDiv);
+                }
+        }
 	this.initialVariableInitialization = function() {
 		that.topSideCount = 0;
 		that.groundSideCount = 0;
@@ -234,7 +254,24 @@ function Game() {
 			viewsWrapper.style.position = "relative";
 			viewsWrapper.style.margin = "20px 20px";
 			(document.getElementsByClassName("wrapper")[0]).appendChild(viewsWrapper);
+                        
+                        if (that.cubeSuffled == true) {
+                                var keyToSelectActiveView = document.createElement("div");
+                                keyToSelectActiveView.style.height = "50px";
+                                keyToSelectActiveView.style.width = "50px";
+                                keyToSelectActiveView.style.borderRadius = "25px";
+                                keyToSelectActiveView.style.position = "absolute";
+                                keyToSelectActiveView.style.backgroundColor = "rgba(150,150,150,0.3)";
+                                keyToSelectActiveView.style.textAlign = "center";
+                                keyToSelectActiveView.style.lineHeight = "50px";
+                                keyToSelectActiveView.innerHTML = i+1;
+                                keyToSelectActiveView.style.fontSize = "24px";
+                                viewsWrapper.appendChild(keyToSelectActiveView);
+                        }
 		}
+                if (that.cubeSuffled == true) {
+                        that.createInfo("showingViews");
+                }
 		that.createSides("top", "left", "front");
 		that.createSides("top", "front", "right");
 		that.createSides("top", "right", "back");
@@ -243,6 +280,9 @@ function Game() {
 		that.createSides("back", "left", "ground");
 		that.createSides("left", "front", "ground");
 		that.createSides("front", "right", "ground");
+		if(document.getElementsByClassName("movementSoundDiv").length>0){			
+		(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("movementSoundDiv")[0]);
+		}
 	}
 	//function to create side
 	this.createSides = function(side1, side2, side3) {
@@ -387,7 +427,7 @@ function Game() {
 			block.style.height = "70px";
 			block.style.width = "29px";
 			block.style.float = "left";
-			block.className = viewSide.substr(0, viewSide.indexOf('V'));
+			block.className = viewSide.substr(0, viewSide.indexOf('S'));
 			block.style.position = "absolute";
 			block.style.top = top + "px";
 			block.style.left = left + "px";
@@ -471,15 +511,22 @@ function Game() {
 				}
 			}
 			if (win == false) {
-				console.log("still playing");
 				break;
 			}
 			sideFirstCubeIndex = cubeIndex;
 		}
 		if (win == true) {
-			clearInterval(timeCountIntervalId);
-			(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("suffleDivSound")[0]);
-			that.cubes = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54]
+			clearInterval(timeCountIntervalId);	
+			that.cubeSuffled = false;	
+			(document.getElementsByTagName("body")[0]).removeChild(document.getElementsByClassName("suffleDivSound")[0]);			
+			var sbs = new ShowBestScore();
+			sbs.score(that.movementCount);
+			var scoreResult = document.createElement("div");
+			scoreResult.id = "scoreResult";
+			scoreResult.style.position = "absolute";
+			scoreResult.style.top = "2px";
+			scoreResult.style.left = "330px";
+			(document.getElementsByClassName("wrapper")[0]).appendChild(scoreResult); 	
 			that.initialVariableInitialization();
 			that.startPlay("win");
 		}
@@ -655,19 +702,7 @@ function Game() {
 		opacityBackground.style.left = "0px";
 		(document.getElementsByTagName("body")[0]).appendChild(opacityBackground);
 
-		var infoDiv = document.createElement("div");
-		infoDiv.className = "opacityBackground";
-		infoDiv.style.height = "30px";
-		infoDiv.style.lineHeight = "30px";
-		infoDiv.style.backgroundColor = "rgba(100,255,100,0.5)";
-		infoDiv.style.position = "absolute";
-		infoDiv.style.top = "0px";
-		infoDiv.style.left = "0px";
-		infoDiv.style.fontSize = "24px";
-		infoDiv.style.padding = "5px"
-		infoDiv.style.borderRadius = "10px"
-		infoDiv.innerHTML = "Press the Key Focuse to make new selection or for change";
-		(document.getElementsByClassName("opacityBackground")[0]).appendChild(infoDiv);
+                that.createInfo("viewSelected");
 
 		var activeViewWrapper = document.createElement("div");
 		activeViewWrapper.className = "activeViewWrapper";
@@ -710,6 +745,7 @@ function Game() {
 			keyToSelectActiveSide.className = "keyToSelectActiveSide";
 			keyToSelectActiveSide.style.height = "50px";
 			keyToSelectActiveSide.style.width = "50px";
+                        keyToSelectActiveSide.style.fontSize = "28px";
 			keyToSelectActiveSide.style.borderRadius = "25px";
 			keyToSelectActiveSide.style.position = "absolute";
 			keyToSelectActiveSide.style.backgroundColor = "rgba(200,200,200,0.4)";
@@ -784,6 +820,7 @@ function Game() {
 			var image = selectedActiveSide.children[i].children[0].attributes[0].value;
 			var color = image.substring(image.indexOf('/') + 1, image.indexOf('-'));
 			var block = document.createElement("div");
+			block.className = "activeBlock";
 			block.style.height = "76px";
 			block.style.width = "76px";
 			block.style.border = "2px solid black";
@@ -792,7 +829,6 @@ function Game() {
 			activeSide.appendChild(block);
 		}
 		activeSideName = selectedActiveSide.attributes[0].value;
-		console.log(activeSideName);
 		activeSideSelected = true;
 		that.showKeyToSelectmovementType();
 	}
@@ -811,6 +847,7 @@ function Game() {
 			var keyToSelectmovementType = document.createElement("div");
 			keyToSelectmovementType.style.height = "50px";
 			keyToSelectmovementType.style.width = "50px";
+                        keyToSelectmovementType.style.fontSize = "28px";
 			keyToSelectmovementType.style.borderRadius = "25px";
 			keyToSelectmovementType.style.position = "absolute";
 			keyToSelectmovementType.style.backgroundColor = "rgba(150,150,150,0.3)";
@@ -837,7 +874,6 @@ function Game() {
 		movementType = movement;
 		rowOrColumnNumber = null;
 		movementTypeSelected = true;
-		console.log(movementType);
 		that.showKeyToSelectRowOrColumnToRotate();
 	}
 	this.showKeyToSelectRowOrColumnToRotate = function() {
@@ -856,6 +892,7 @@ function Game() {
 			keyToSelectRowOrColumnToRotate.className = "keyToSelectRowOrColumnToRotate";
 			keyToSelectRowOrColumnToRotate.style.height = "50px";
 			keyToSelectRowOrColumnToRotate.style.width = "50px";
+                        keyToSelectRowOrColumnToRotate.style.fontSize = "28px";
 			keyToSelectRowOrColumnToRotate.style.borderRadius = "25px";
 			keyToSelectRowOrColumnToRotate.style.position = "absolute";
 			keyToSelectRowOrColumnToRotate.style.backgroundColor = "rgba(120,120,120,0.6)";
@@ -892,7 +929,6 @@ function Game() {
 	this.focusSelectedRowOrColumnToRotate = function(selectedNumber) {
 		rowOrColumnNumber = selectedNumber;
 		rowOrColumnNumberSelected = true;
-		console.log(rowOrColumnNumber);
 		that.showKeyToSelectDirectionToRotate();
 	}
 	this.showKeyToSelectDirectionToRotate = function() {
@@ -1106,11 +1142,6 @@ function Game() {
 		var movementPerformed = false; //boolean to stop parsing Json when movement is performed
 		that.cubes = [];
 		that.cubes = that.constantCubes.slice(0); //as top and ground side are rotated when view other then 1 and 5 is choosen
-		var abc = "";
-		for (var a = 0; a < 54; a++) {
-			abc += " " + that.cubes[a];
-		}
-		console.log(abc);
 		if ((viewName == "view2" && activeSideName == "topSide") || (viewName == "view8" && activeSideName == "groundSide")) {
 			if (movementType == "vertical") that.toggleValueOf("rowOrColumnNumber");
 			else if (movementType == "horizental") that.toggleValueOf("directionToRotate");
@@ -1149,7 +1180,6 @@ function Game() {
 					}
 				}
 				if (moveSpec[k].sideName == activeSideName && moveSpec[k].movement[i].type == movementType) {
-					//console.log(moveSpec[k].movement[i].kind);
 					if (moveSpec[k].movement[i].kind == "2") {
 						that.verticalRotationForTopFrontBackAndHorizentalForGroundSide(directionToRotate);
 						movementPerformed = true;
@@ -1166,7 +1196,6 @@ function Game() {
 				}
 			}
 			if (movementPerformed == true) {
-				console.log(activeSideName + "  " + movementType + "  " + rowOrColumnNumber + "  " + directionToRotate);
 				break;
 			}
 		}
@@ -1183,6 +1212,11 @@ function Game() {
 		that.initialVariableInitialization();
 		that.createViews();
 		that.winGame();
+		var movementSoundDiv = document.createElement("div");
+		movementSoundDiv.className = "movementSoundDiv";
+		movementSoundDiv.innerHTML = "<audio autoplay> <source src='sounds/suffle.mp3' type='audio/mpeg'> </audio>";
+		(document.getElementsByTagName("body")[0]).appendChild(movementSoundDiv);
+		
 	}
 	//function to rotate the side 
 	this.rotateSide = function(side, directionToRotate) {
@@ -1253,7 +1287,6 @@ function Game() {
 	}
 
 	this.horizontalRotationForTopAndVerticalForLeftRightGroundSide = function(directionToRotate) {
-		console.log(activeSideName + " " + movementType + " " + rowOrColumnNumber + " " + directionToRotate);
 		var tempCubes = [];
 		var rotaterArray = [];
 		tempCubes = that.cubes.slice(0);
@@ -1261,7 +1294,6 @@ function Game() {
 			if (activeSideName == "topSide" || activeSideName == "leftSide") {
 				rotaterArray = that.horizentalLeftTopSideRoterFirstArray.slice(0);
 			} else {
-				console.log("bhayo");
 				rotaterArray = that.horizentalLeftTopSideRoterThirdArray.slice(0);
 			}
 		} else if (rowOrColumnNumber == "second") {
